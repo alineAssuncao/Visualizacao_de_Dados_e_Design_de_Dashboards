@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>Visualização de Dados com D3</title>
+	<link rel="stylesheet" href="main.css">
+	<script  type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+
+	<!-- Aqui são colocados os elementos DOM -->
+	<!-- <svg id="chart"></svg>-->
+
+<script>
+
+var disciplinas = [
+	{key: "Lógica", 	    				value: 78},
+	{key: "Álgebra I", 						value: 71},
+	{key: "Orientação a Objetos", 			value: 67},
+	{key: "Estatística I",					value: 93},
+	{key: "Sistemas Operacionais I", 	    value: 59},
+	{key: "Física Experimental", 			value: 43},
+	{key: "Engenharia de Software", 		value: 88},
+	{key: "Estrutura de Dados",				value: 36},
+	{key: "Algoritmos I", 	    			value: 91},
+	{key: "Algoritmos II", 					value: 74},
+	{key: "Programação Java", 				value: 67},
+	{key: "Programação Python",				value: 75}
+];
+
+var w = 800;
+var h = 450;
+
+var margin = {
+	top: 20,
+	bottom: 20,
+	left: 20,
+	right: 20
+};
+
+var width = w - margin.left - margin.right;
+var height = h - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+		.domain([0, d3.max(disciplinas, function(d){
+			return d.value;
+		})])
+		.range([0, width]);
+
+var y = d3.scale.linear()
+		.domain([0, disciplinas.length])
+		.range([0, height]);
+
+var svg = d3.select("body").append("svg")
+			.attr("id", "chart")
+			.attr("width", w)
+			.attr("height", h);
+
+var chart = svg.append("g")
+			.classed("display", true)
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+function plot(params){
+	this.selectAll(".bar")
+		.data(params.data)
+		.enter()
+			.append("rect")
+			.classed("bar", true)
+			.attr("x", 0)
+			.attr("y", function(d,i){
+				return y(i);
+			})
+			.attr("height", function(d,i){
+				return y(1)-1;
+			})
+			.attr("width", function(d){
+				return x(d.value);
+			});
+	this.selectAll(".bar-label")
+		.data(params.data)
+		.enter()
+			.append("text")
+			.classed("bar-label", true)
+			.attr("x", function(d){
+				return x(d.value);
+			})
+			.attr("dx", -4)
+			.attr("y", function(d,i){
+				return y(i);
+			})
+			.attr("dy", function(d,i){
+				return y(1)/1.5+2;
+			})
+			.text(function(d){
+				return d.value;
+			})
+}
+
+plot.call(chart, {data: disciplinas});
+
+</script>	
+</body>
+</html>

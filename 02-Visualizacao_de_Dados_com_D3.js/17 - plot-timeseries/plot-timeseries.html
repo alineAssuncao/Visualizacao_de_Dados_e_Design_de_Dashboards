@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>Visualização de Dados com D3</title>
+	<link rel="stylesheet" href="main.css">
+	<script  type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+
+	<!-- Aqui são colocados os elementos DOM -->
+	<!-- <svg id="chart"></svg>-->
+
+<script>
+
+var data = [
+	{key: "Petrobras", value: 60, date: "2017/01/01" },
+	{key: "Petrobras", value: 58, date: "2017/01/02" },
+	{key: "Petrobras", value: 59, date: "2017/01/03" },
+	{key: "Petrobras", value: 56, date: "2017/01/04" },
+	{key: "Petrobras", value: 57, date: "2017/01/05" },
+	{key: "Petrobras", value: 55, date: "2017/01/06" },
+	{key: "Petrobras", value: 56, date: "2017/01/07" },
+	{key: "Petrobras", value: 52, date: "2017/01/08" },
+	{key: "Petrobras", value: 54, date: "2017/01/09" },
+	{key: "Petrobras", value: 57, date: "2017/01/10" },
+	{key: "Petrobras", value: 56, date: "2017/01/11" },
+	{key: "Petrobras", value: 59, date: "2017/01/12" },
+	{key: "Petrobras", value: 56, date: "2017/01/13" },
+	{key: "Petrobras", value: 52, date: "2017/01/14" },
+	{key: "Petrobras", value: 48, date: "2017/01/15" },
+	{key: "Petrobras", value: 47, date: "2017/01/16" },
+	{key: "Petrobras", value: 48, date: "2017/01/17" },
+	{key: "Petrobras", value: 45, date: "2017/01/18" },
+	{key: "Petrobras", value: 43, date: "2017/01/19" },
+	{key: "Petrobras", value: 41, date: "2017/01/20" },
+	{key: "Petrobras", value: 37, date: "2017/01/21" },
+	{key: "Petrobras", value: 36, date: "2017/01/22" },
+	{key: "Petrobras", value: 39, date: "2017/01/23" },
+	{key: "Petrobras", value: 41, date: "2017/01/24" },
+	{key: "Petrobras", value: 42, date: "2017/01/25" },
+	{key: "Petrobras", value: 40, date: "2017/01/26" },
+	{key: "Petrobras", value: 43, date: "2017/01/27" },
+	{key: "Petrobras", value: 41, date: "2017/01/28" },
+	{key: "Petrobras", value: 39, date: "2017/01/29" },
+	{key: "Petrobras", value: 40, date: "2017/01/30" },
+	{key: "Petrobras", value: 39, date: "2017/01/31" }
+];
+
+var w = 800;
+var h = 450;
+
+var margin = {
+	top: 58,
+	bottom: 100,
+	left: 80,
+	right: 40
+};
+
+var width = w - margin.left - margin.right;
+var height = h - margin.top - margin.bottom;
+
+var svg = d3.select("body").append("svg")
+			.attr("id", "chart")
+			.attr("width", w)
+			.attr("height", h);
+
+var chart = svg.append("g")
+			.classed("display", true)
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			
+var dateParser = d3.time.format("%Y/%m/%d").parse;
+
+var x = d3.time.scale()
+		.domain(d3.extent(data, function(d){
+			var date = dateParser(d.date);
+			return date;
+		}))
+		.range([0,width]);
+
+var y = d3.scale.linear()
+		.domain([0, d3.max(data, function(d){
+			return d.value;
+		})])
+		.range([height,0]);
+
+var xAxis = d3.svg.axis()
+			.scale(x)
+			.orient("bottom")
+			.ticks(d3.time.days, 7)
+			.tickFormat(d3.time.format("%m/%d"));
+
+var yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left")
+			.ticks(5);
+
+var line = d3.svg.line()
+			.x(function(d){
+				var date = dateParser(d.date);
+				return x(date);
+			})
+			.y(function(d){
+				return y(d.value);
+			})
+			.interpolate("monotone");
+
+var area = d3.svg.area()
+			.x(function(d){
+				var date = dateParser(d.date);
+				return x(date);
+			})
+			.y0(height)
+			.y1(function(d){
+				return y(d.value);
+			})
+			.interpolate("monotone");
+
+function plot(params){
+	this.append("g")
+		.classed("x axis", true)
+		.attr("transform", "translate(0," + height + ")")
+		.call(params.axis.x);
+	this.append("g")
+		.classed("y axis", true)
+		.attr("transform", "translate(0,0)")
+		.call(params.axis.y);
+	this.selectAll(".area")
+		.data([params.data])
+		.enter()
+			.append("path")
+			.classed("area", true);
+	this.selectAll(".trendline")
+		.data([params.data])
+		.enter()
+			.append("path")
+			.classed("trendline", true);
+	this.selectAll(".point")
+		.data(params.data)
+		.enter()
+			.append("circle")
+			.classed("point", true)
+			.attr("r", 2);
+	this.selectAll(".area")
+		.attr("d", function(d){
+			return area(d);
+		})
+	this.selectAll(".trendline")
+		.attr("d", function(d){
+			return line(d);
+		})
+	this.selectAll(".point")
+		.attr("cx", function(d){
+			var date = dateParser(d.date);
+			return x(date);
+		})
+		.attr("cy", function(d){
+			return y(d.value);
+		})
+	this.selectAll(".area")
+		.data([params.data])
+		.exit()
+		.remove();
+	this.selectAll(".trendline")
+		.data([params.data])
+		.exit()
+		.remove();
+	this.selectAll(".point")
+		.data(params.data)
+		.exit()
+		.remove();
+}
+
+plot.call(chart, {
+	data: data,
+	axis: {
+		x: xAxis,
+		y: yAxis
+	}
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+1 - rodar no terminal e acessar a pasta com os aquivos
+2 - digitar "python  -m http.server", para que a maquina seja um servidor web

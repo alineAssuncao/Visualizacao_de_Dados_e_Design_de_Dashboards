@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link href="/css/main.css" rel="stylesheet">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+      
+    </div>
+</nav>
+
+        <p><link href='/10-dados-geoespaciais/map.css' rel='stylesheet'></p>
+
+<h1 class="section-title">Criando um Chororoplet Map</h1>
+
+
+
+
+<script>
+    // Definindo largura e altura dos mapas
+    var geoJsonUrl = '/10-dados-geoespaciais/data/countries.geojson',
+        width = 400,
+        height = 400;
+</script>
+
+
+
+
+<h2 class="section-subtitle">Projeção</h2>
+
+
+
+
+<div id="map01"></div>
+
+
+
+
+<script>
+    // Carregando os dados do arquivo GeoJSON
+    d3.json(geoJsonUrl, function(error, data) {
+
+        if (error) { return error; }
+
+        var div = d3.select('#map01'),
+            svg = div.selectAll('svg').data([data]);
+
+        svg.enter().append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var projection = d3.geo.mercator()
+            .translate([width / 2, height / 2]);
+
+        var pathGenerator = d3.geo.path()
+            .projection(projection);
+
+        var features = svg.selectAll('path.feature').data(data.features);
+
+        features.enter().append('path')
+            .attr('class', 'feature');
+
+        features.attr('d', pathGenerator);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Adicionando Oceanos</h2>
+
+
+
+
+<div id="map02"></div>
+
+
+
+
+<script>
+    d3.json(geoJsonUrl, function(error, data) {
+
+        if (error) { return error; }
+
+        var div = d3.select('#map02'),
+            svg = div.selectAll('svg').data([data]);
+
+        svg.enter().append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var scale = width / (2 * Math.PI);
+
+        var projection = d3.geo.mercator()
+            .scale(scale)
+            .translate([width / 2, height / 2]);
+
+        var pathGenerator = d3.geo.path()
+            .projection(projection);
+
+        var globeFeature = {
+            type: 'Feature',
+            geometry: {
+                type: 'Polygon',
+                coordinates: [
+                    [
+                        [-179.999,  89.999],
+                        [ 179.999,  89.999],
+                        [ 179.999, -89.999],
+                        [-179.999, -89.999],
+                        [-179.999,  89.999]
+                    ]
+                ]
+            }
+        };
+
+        var globe = svg.selectAll('path.globe').data([globeFeature]);
+
+        globe.enter().append('path')
+            .attr('class', 'globe');
+
+        globe.attr('d', pathGenerator);
+
+        var features = svg.selectAll('path.feature').data(data.features);
+
+        features.enter().append('path')
+            .attr('class', 'feature');
+
+        features.attr('d', pathGenerator);
+
+        var graticule = d3.geo.graticule();
+
+        var grid = svg.selectAll('path.graticule').data([graticule()])
+
+        grid.enter().append('path')
+            .attr('class', 'graticule');
+
+        grid.attr('d', pathGenerator);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Escalas de Cores</h2>
+
+
+
+
+<div id="qualitative"></div>
+
+
+<p>Escala Qualitativa</p>
+
+
+
+
+<div id="quantitative-sequential"></div>
+
+
+<p>Sequencial Quantativa</p>
+
+
+
+
+<div id="quantitative-diverging"></div>
+
+
+<p>Quantitativa Divergente</p>
+
+
+
+
+<script>
+
+    function drawScale(selection) {
+        selection.each(function(data) {
+
+            var div = d3.select(this),
+                svg = div.selectAll('svg').data([data]),
+                width  = 60,
+                height = 30;
+
+            svg.enter().append('svg')
+                .attr('width',  width * data.length)
+                .attr('height', height);
+
+            var rect = svg.selectAll('rect').data(data);
+
+            rect.enter().append('rect');
+
+            rect
+                .attr('width', width)
+                .attr('height', height)
+                .attr('x', function(d, i) { return width * i; })
+                .attr('fill', function(d) { return d; });
+        });
+    }
+
+    var colorScales = {
+        sequential:  ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026'],
+        qualitative: ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854'],
+        diverging:   ['#ca0020', '#f4a582', '#f7f7f7', '#92c5de', '#0571b0']
+    };
+
+    d3.select('#qualitative')
+        .data([colorScales.qualitative])
+        .call(drawScale);
+
+    d3.select('#quantitative-sequential')
+        .data([colorScales.sequential])
+        .call(drawScale);
+
+    d3.select('#quantitative-diverging')
+        .data([colorScales.diverging])
+        .call(drawScale);
+
+</script>
+
+
+
+
+<h2 class="section-subtitle">Choropleth Map</h2>
+
+
+
+
+<div id="map03"></div>
+
+
+
+
+<script>
+    d3.json(geoJsonUrl, function(error, data) {
+
+        if (error) { return error; }
+
+        var width = 500,
+            height = 500;
+
+        var div = d3.select('#map03'),
+            svg = div.selectAll('svg').data([data]);
+
+        svg.enter().append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var scale = width / (2 * Math.PI);
+
+        var projection = d3.geo.mercator()
+            .scale(scale)
+            .translate([width / 2, height / 2]);
+
+        var pathGenerator = d3.geo.path()
+            .projection(projection);
+
+        var globeFeature = {
+            type: 'Feature',
+            geometry: {
+                type: 'Polygon',
+                coordinates: [
+                    [
+                        [-179.999,  89.999],
+                        [ 179.999,  89.999],
+                        [ 179.999, -89.999],
+                        [-179.999, -89.999],
+                        [-179.999,  89.999]
+                    ]
+                ]
+            }
+        };
+
+        var globe = svg.selectAll('path.globe-white').data([globeFeature]);
+
+        globe.enter().append('path')
+            .attr('class', 'globe-white');
+
+        globe.attr('d', pathGenerator);
+
+        var colorRange = [
+            '#f7fcfd',
+            '#e0ecf4',
+            '#bfd3e6',
+            '#9ebcda',
+            '#8c96c6',
+            '#8c6bb1',
+            '#88419d',
+            '#6e016b'];
+
+        var colorScale = d3.scale.quantize()
+            .domain(d3.extent(data.features, d3.geo.area))
+            .range(colorRange);
+
+        var features = svg.selectAll('path.feature-color').data(data.features);
+
+        features.enter().append('path')
+            .attr('class', 'feature-color');
+
+        features.attr('d', pathGenerator)
+            .attr('fill', function(d) { return colorScale(d3.geo.area(d)); });
+    });
+</script>
+
+
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

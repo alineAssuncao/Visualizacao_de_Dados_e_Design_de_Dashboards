@@ -1,0 +1,1 @@
+Executar o "ui.R" dentro do RStudio para a criação do dashboard

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+    </div>
+</nav>
+
+<h1 class="section-title">Highlighting e Tooltips</h1>
+
+<h2 class="section-subtitle">Gráfico de Frutas</h2>
+
+
+<script>
+    function fruitChart1() {
+
+        var width = 600,
+            height = 120;
+
+        // Extensão dos círculos
+        var radiusExtent = [0, 40];
+
+        // Função de Chart
+        function chart(selection) {
+            selection.each(function(data) {
+
+                // Seleciona o container div e cria o elemento SVG
+                var div = d3.select(this),
+                    svg = div.selectAll('svg').data([data]);
+
+                svg.enter().append('svg');
+
+                svg
+                    .attr('width', width)
+                    .attr('height', height);
+
+                var xScale = d3.scale.ordinal()
+                    .domain(d3.range(data.length))
+                    .rangePoints([0, width], 1);
+
+                var maxCal = d3.max(data, function(d) {
+                    return d.calories;
+                });
+
+                var rScale = d3.scale.sqrt()
+                    .domain([0, maxCal])
+                    .rangeRound(radiusExtent);
+
+                var gItems = svg.selectAll('g.fruit-item')
+                    .data(data)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'fruit-item')
+                    .attr('transform', function(d, i) {
+                        return 'translate(' + [xScale(i), height / 2] + ')';
+                    });
+
+                // Adicionando um círuclo ao grupo de itens
+                var circles = gItems.append('circle')
+                    .attr('r', function(d) { return rScale(d.calories); })
+                    .attr('fill', function(d) { return d.color; });
+
+                // Adicionando o nome da fruta
+                var labelName = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '12px')
+                    .text(function(d) { return d.name; });
+
+                // Adicionando Labels
+                var labelKCal = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '10px')
+                    .attr('y', 12)
+                    .text(function(d) { return d.calories + ' kcal'; });
+            });
+        }
+
+        // Largura do Chart
+        chart.width = function(val) {
+            if (!arguments.length) { return width; }
+            width = val;
+            return chart;
+        };
+
+        // Altura do Chart
+        chart.height = function(val) {
+            if (!arguments.length) { return height; }
+            height = val;
+            return chart;
+        };
+
+        return chart;
+    }
+</script>
+
+
+
+<!-- Container Div -->
+
+
+<div id="chart01"></div>
+
+
+
+<script>
+    // Carregando os dados do arquivo JSON
+    d3.json('/08-tooltips/frutas.json', function(error, root) {
+
+        if (error) {
+            console.error('Erro ao obter os dados.');
+            throw error;
+        }
+
+        // Criando o chart
+        var fruits = fruitChart1();
+        
+        d3.select('div#chart01')
+            .data([root.data])
+            .call(fruits);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Adicionando Highlighting (Destaque)</h2>
+
+
+
+
+<!-- Repete a Função, mas agora com Highlighting -->
+
+
+<script>
+    function fruitChart2() {
+
+         var width = 700,
+            height = 120;
+
+         var radiusExtent = [0, 40];
+
+        function chart(selection) {
+            selection.each(function(data) {
+
+                var div = d3.select(this),
+                    svg = div.selectAll('svg').data([data]);
+
+                svg.enter().append('svg');
+
+                svg
+                    .attr('width', width)
+                    .attr('height', height);
+
+                var xScale = d3.scale.ordinal()
+                    .domain(d3.range(data.length))
+                    .rangePoints([0, width], 1);
+
+                var maxCal = d3.max(data, function(d) { return d.calories; }),
+                    rScale = d3.scale.sqrt()
+                        .domain([0, maxCal])
+                        .rangeRound(radiusExtent);
+
+                var gItems = svg.selectAll('g.fruit-item')
+                    .data(data)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'fruit-item')
+                    .attr('transform', function(d, i) {
+                        return 'translate(' + [xScale(i), height / 2] + ')';
+                    });
+
+                var circles = gItems.append('circle')
+                    .attr('r', function(d) { return rScale(d.calories); })
+                    .attr('fill', function(d) { return d.color; });
+
+                var labelName = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '12px')
+                    .attr('pointer-events', 'none')
+                    .text(function(d) { return d.name; });
+
+                var labelKCal = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '10px')
+                    .attr('pointer-events', 'none')
+                    .attr('y', 12)
+                    .text(function(d) { return d.calories + ' kcal'; });
+
+                // Eventos mouseover e mouseout 
+                circles
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .attr('stroke-width', 3)
+                            .attr('fill', d3.rgb(d.color).brighter())
+                            .attr('stroke', d.color);
+                    })
+                    .on('mouseout', function(d) {
+                        d3.select(this)
+                            .attr('fill', d.color)
+                            .attr('stroke-width', 0);
+                    });
+            });
+        }
+
+        chart.width = function(val) {
+            if (!arguments.length) { return width; }
+            width = val;
+            return chart;
+        };
+
+        chart.height = function(val) {
+            if (!arguments.length) { return height; }
+            height = val;
+            return chart;
+        };
+
+        return chart;
+    }
+</script>
+
+
+
+
+<!-- Container Div -->
+
+
+<div id="chart02"></div>
+
+
+
+
+<script>
+     d3.json('/08-tooltips/frutas.json', function(error, root) {
+
+         if (error) {
+            console.error('Erro ao obter dados.');
+        }
+
+         var fruits = fruitChart2();
+
+         d3.select('div#chart02')
+            .data([root.data])
+            .call(fruits);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Tooltip API</h2>
+
+
+
+
+<script>
+    function tooltipChart1() {
+        'use strict';
+        
+        function chart(selection) {
+            selection.each(function(d) {
+                d3.select(this)
+                    .on('mouseover.tooltip', create)
+                    .on('mousemove.tooltip', move)
+                    .on('mouseout.tooltip', remove);
+            });
+        }
+
+        // Cria e move o tooltip
+        function init() { console.log('init'); };
+        function create(d) { console.log('create '); };
+        function move(d) { console.log('move'); };
+        function remove(d) { console.log('remove'); };
+
+        return chart;
+    }
+</script>
+
+
+
+
+<!-- Retângulo -->
+
+
+<div id="chart03"></div>
+
+
+
+
+<script>
+  
+    var data = [{
+        title: 'Title',
+        content: 'Aqui vai texto.'
+    }];
+  
+    var tooltip = tooltipChart1();
+
+    var width = 700,
+        height = 80;
+
+    var div = d3.select('div#chart03'),
+        svg = div.append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+    var rect = svg.selectAll('rect')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', '#eee')
+        .on('mouseover', function(d) {
+            d3.select(this).attr('fill', '#ddd');
+        })
+        .on('mouseout', function(d) {
+            d3.select(this).attr('fill', '#eee');
+        });
+
+    rect.call(tooltip);
+</script>
+
+
+
+
+<h2 class="section-subtitle">Tooltip</h2>
+
+
+
+
+<script>
+    function tooltipChart() {
+        'use strict';
+
+        var width = 200,
+            height = 80;
+
+        var offset = {x: 20, y: 0};
+
+        var title = function(d) { return d.title; };
+        var content = function(d) { return d.content; };
+
+        function chart(selection) {
+            selection.each(function(d) {
+                d3.select(this)
+                    .on('mouseover.tooltip', create)
+                    .on('mousemove.tooltip', move)
+                    .on('mouseout.tooltip', remove);
+            });
+        }
+
+        // Inicializando o Tooltip
+        var init = function(selection) {
+            selection.each(function(data) {
+                // Tooltip container
+                d3.select(this)
+                    .attr('class', 'tooltip-container')
+                    .style('width', width + 'px');
+
+                // Tooltip Title
+                d3.select(this).append('p')
+                    .attr('class', 'tooltip-title')
+                    .text(title(data));
+
+                // Tooltip Content
+                d3.select(this).append('p')
+                    .attr('class', 'tooltip-content')
+                    .text(content(data));
+            });
+        };
+
+        // Tooltip chart
+        var create = function(data) {
+
+            var tooltipContainer = d3.select('body').append('div')
+                .datum(data)
+                .attr('class', 'tooltip-container')
+                .call(init);
+
+            tooltipContainer
+                .style('left', (d3.event.pageX + offset.x) + 'px')
+                .style('top', (d3.event.pageY + offset.y) + 'px');
+        };
+
+        var move = function() {
+            d3.select('body').select('div.tooltip-container')
+                .style('left', (d3.event.pageX + offset.x) + 'px')
+                .style('top', (d3.event.pageY + offset.y) + 'px');
+        };
+
+        var remove = function() {
+            d3.select('div.tooltip-container').remove();
+        };
+
+        chart.title = function(titleAccessor) {
+            if (!arguments.length) { return title; }
+            title = titleAccessor;
+            return chart;
+        };
+
+        chart.content = function(contentAccessor) {
+            if (!arguments.length) { return content; }
+            content = contentAccessor;
+            return chart;
+        };
+
+
+        return chart;
+    }
+</script>
+
+
+
+
+<!-- Retângulo -->
+
+
+<div>
+    <style>
+        .tooltip-container {
+            position: absolute;
+            pointer-events: none;
+            padding: 2px 4px 2px 6px;
+            background-color: #eee;
+            border: solid 1px #aaa;
+        }
+
+        .tooltip-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1em;
+        }
+
+        .tooltip-content {
+            font-size: 11px;
+        }
+
+    </style>
+</div>
+
+
+
+
+<div id="chart04"></div>
+
+
+
+
+<script>
+
+    // Tooltip Data item
+    var data = [{
+        title: 'Título',
+        content: 'Aqui vai o conteúdo do tooltip.'
+    }];
+
+    var tooltip = tooltipChart();
+
+    var width = 700,
+        height = 80;
+
+    var div = d3.select('div#chart04'),
+        svg = div.append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+    var rect = svg.selectAll('rect')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', '#eee')
+        .on('mouseover', function(d) {
+            d3.select(this).attr('fill', '#ddd');
+        })
+        .on('mouseout', function(d) {
+            d3.select(this).attr('fill', '#eee');
+        });
+
+    rect.call(tooltip);
+</script>
+
+
+
+
+<h2 class="section-subtitle">Aplicando o Tooltip</h2>
+
+<div id="chart05"></div>
+
+
+<script>
+    function fruitChart() {
+
+        var width = 700,
+            height = 120;
+
+        var radiusExtent = [0, 40];
+
+        var tooltip = tooltipChart()
+            .title(function(d) { return d.name; })
+            .content(function(d) { return d.description; });
+
+        function chart(selection) {
+            selection.each(function(data) {
+
+                var div = d3.select(this),
+                    svg = div.selectAll('svg').data([data]);
+
+                svg.enter().append('svg');
+
+                svg
+                    .attr('width', width)
+                    .attr('height', height);
+
+                var xScale = d3.scale.ordinal()
+                    .domain(d3.range(data.length))
+                    .rangePoints([0, width], 1);
+
+                var maxCal = d3.max(data, function(d) { return d.calories; }),
+                    rScale = d3.scale.sqrt()
+                        .domain([0, maxCal])
+                        .rangeRound(radiusExtent);
+                
+                var gItems = svg.selectAll('g.fruit-item')
+                    .data(data)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'fruit-item')
+                    .attr('transform', function(d, i) {
+                        return 'translate(' + [xScale(i), height / 2] + ')';
+                    });
+
+                var circles = gItems.append('circle')
+                    .attr('r', function(d) { return rScale(d.calories); })
+                    .attr('fill', function(d) { return d.color; });
+                
+                var labelName = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '12px')
+                    .attr('pointer-events', 'none')
+                    .text(function(d) { return d.name; });
+
+                var labelKCal = gItems.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '10px')
+                    .attr('pointer-events', 'none')
+                    .attr('y', 12)
+                    .text(function(d) { return d.calories + ' kcal'; });
+
+                circles
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .attr('fill', d3.rgb(d.color).brighter())
+                            .attr('stroke', d.color)
+                            .attr('stroke-width', 3);
+                    })
+                    .on('mouseout', function(d) {
+                        d3.select(this)
+                            .attr('fill', d.color)
+                            .attr('stroke-width', 0);
+                    })
+                    .call(tooltip);
+
+            });
+        }
+
+        chart.width = function(val) {
+            if (!arguments.length) { return width; }
+            width = val;
+            return chart;
+        };
+
+        chart.height = function(val) {
+            if (!arguments.length) { return height; }
+            height = val;
+            return chart;
+        };
+
+        return chart;
+    }
+</script>
+
+
+
+
+<script>
+    d3.json('/08-tooltips/frutas.json', function(error, root) {
+
+        if (error) {
+            console.error('Error getting or parsing the data.');
+        }
+
+        var fruits = fruitChart();
+
+        d3.select('div#chart05')
+            .data([root.data])
+            .call(fruits);
+    });
+</script>
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

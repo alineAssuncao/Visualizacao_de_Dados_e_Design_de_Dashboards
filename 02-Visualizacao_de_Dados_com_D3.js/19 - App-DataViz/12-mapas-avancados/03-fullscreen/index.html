@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <p><link rel="stylesheet" type="text/css" href="/12-mapas-avancados/maps.css"></p>
+
+<div>
+<style>
+    body, html {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    #stereographic {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+</div>
+
+
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/hyg.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var div = d3.select('body').append('div').attr('id', 'stereographic');
+
+        var width = parseInt(div.style('width'), 10),
+            height = parseInt(div.style('height'), 10);
+
+        var svg = div.append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var rotate = {x: 0, y: 45};
+
+        var projection = d3.geo.stereographic()
+            .scale(4.5 * height / Math.PI)
+            .translate([width / 2, height / 2])
+            .clipAngle(120)
+            .rotate([rotate.x, -rotate.y]);
+
+        var path = d3.geo.path().projection(projection);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'cellestial-globe')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        var lines = svg.selectAll('path.graticule').data([graticule()])
+            .enter().append('path')
+            .attr('class', 'graticule')
+            .attr('d', path);
+
+        var rScale = d3.scale.linear()
+            .domain(d3.extent(data.features, function(d) { return d.properties.mag; }))
+            .range([4, 1]);
+
+        path.pointRadius(function(d) {
+            return d.properties ? rScale(d.properties.mag) : 1;
+        });
+
+        var cScale = d3.scale.linear()
+            .domain([-0.3, 0, 0.6, 0.8, 1.42])
+            .range(['#6495ed', '#fff', '#fcff6c', '#ffb439', '#ff4039']);
+
+        var stars = svg.selectAll('path.star-color').data(data.features)
+            .enter().append('path')
+            .attr('class', 'star-color')
+            .attr('d', path)
+            .attr('fill', function(d) { return cScale(d.properties.color); });
+
+        var name = svg.selectAll('text').data(data.features)
+            .enter().append('text')
+            .attr('class', 'star-label')
+            .attr('x', function(d) { return projection(d.geometry.coordinates)[0] + 8; })
+            .attr('y', function(d) { return projection(d.geometry.coordinates)[1] + 8; })
+            .text(function(d) { return d.properties.name; })
+            .attr('fill', 'white');
+
+        var overlay = svg.selectAll('rect').data([rotate])
+            .enter().append('rect');
+
+        overlay
+            .attr('width', width)
+            .attr('height', height)
+            .attr('fill-opacity', 0);
+
+        var dragBehavior = d3.behavior.drag()
+            .origin(Object)
+            .on('drag', drag);
+
+        overlay.call(dragBehavior);
+
+        function drag(d) {
+            projection.rotate([(d.x = d3.event.x) / 2, -(d.y = d3.event.y) / 2]);
+            stars.attr('d', function(u) {
+                var p = path(u);
+                return p ? p : 'M 10 10';
+            });
+            lines.attr('d', path);
+            name
+                .attr('x', function(d) { return projection(d.geometry.coordinates)[0] + 8; })
+                .attr('y', function(d) { return projection(d.geometry.coordinates)[1] + 8; })
+        }
+    });
+</script>
+
+
+<script src="/js/lib/jquery.min.js"></script>
+<script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

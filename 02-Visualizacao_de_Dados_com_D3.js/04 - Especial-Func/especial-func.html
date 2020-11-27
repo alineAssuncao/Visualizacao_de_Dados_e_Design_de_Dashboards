@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>Visualização de Dados com D3</title>
+	<link rel="stylesheet" href="main.css">
+	<script  type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+	
+	<!-- Aqui são colocados os elementos DOM -->
+	<p>Funções Especiais em D3</p>
+
+<script>
+
+// Dados
+var medias = [78,71,67,93,59,43,88,89,91,80,67,75];
+
+// Funções
+var menorMedia = d3.min(medias);
+var maiorMedia = d3.max(medias);
+var mediaMedias = d3.mean(medias);
+console.log(menorMedia, maiorMedia, mediaMedias);
+
+// Funções com Arrays
+var disciplinas = [
+	{key: "Lógica", 	    				value: 78},
+	{key: "Álgebra I", 						value: 71},
+	{key: "Orientação a Objetos", 			value: 67},
+	{key: "Estatística I",					value: 93},
+	{key: "Sistemas Operacionais I", 	    value: 59},
+	{key: "Física Experimental", 			value: 43},
+	{key: "Engenharia de Softwware", 		value: 88},
+	{key: "Programação Python",				value: 89},
+	{key: "Algoritmos I", 	    			value: 91},
+	{key: "Algoritmos II", 					value: 80},
+	{key: "Programação Java", 				value: 67},
+	{key: "Programação Python",				value: 75}
+];
+
+var disciplinasMenorMedia = d3.min(disciplinas, function(d){
+	return d.value;
+});
+var disciplinasMaiorMedia = d3.max(disciplinas, function(d){
+	return d.value;
+});
+var disciplinasMediaMedias = d3.mean(disciplinas, function(d){
+	return d.value;
+});
+console.log(disciplinasMenorMedia, disciplinasMaiorMedia, disciplinasMediaMedias);
+</script>	
+</body>
+</html>

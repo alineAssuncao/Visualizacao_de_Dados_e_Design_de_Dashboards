@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html ng-app="RadarChart">
+
+<!-- Extraído originalmente de: http://bl.ocks.org/chrisrzhou/2421ac6541b68c1680f8  -->
+
+<head>
+  <meta charset="utf-8">
+  <title>Visualização de Dados com D3.js</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="container" ng-controller="MainCtrl as radar">
+
+
+
+  <!-- header -->
+  <header class="page-header">
+    <h1>Radar Chart D3.js Interativo</h1> 
+    <p class="text-small">Permite carga de dados e alteração em tempo real dos parâmetros de visualização!</p>
+  </header>
+
+
+  <!-- main content -->
+  <div class="main container">
+    <h2>Visualização</h2>
+
+    <!-- visualization -->
+    <div class="visualization col-xs-7">
+      <p>Selecione uma opção:
+        <select ng-options="example for example in radar.examples" ng-model="radar.exampleSelected" ng-change="radar.selectExample(radar.exampleSelected)"></select>
+      </p>
+      <div class="visualization">
+        <radar csv="radar.csv" config="radar.config"></radar>
+      </div>
+    </div>
+
+
+    <!-- configuration -->
+    <div class="configuration col-xs-5">
+      <form>
+        <h3>Parâmetros de Configuração</h3>
+        <div class="form-group">
+          <label>Largura:</label>
+          <input type="number" class="form-control-inline" step="50" ng-model="radar.config.w" />
+          <label>Altura:</label>
+          <input type="number" class="form-control-inline" step="50" ng-model="radar.config.h" />
+        </div>
+        <div class="form-group">
+          <label>Níveis:</label>
+          <input type="number" class="form-control-inline" step="1" ng-model="radar.config.levels" />
+        </div>
+        <div class="form-group">
+          <label>Padding Scale:</label>
+          <input type="number" class="form-control-inline" step="0.1" ng-model="radar.config.facetPaddingScale" />
+        </div>
+        <div class="form-group">
+          <label>Label Scale:</label>
+          <input type="number" class="form-control-inline" step="0.1" ng-model="radar.config.labelScale" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.facet" /><span class="text-primary">Facet Plot</span></label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showLevels" />Níveis</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showAxes" />Eixos</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showVertices" />Vértices</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showPolygons" />Polígonos</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showLegend" />Legenda</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showLevelsLabels" />Labels dos Níveis</label>
+          <label class="checkbox"><input type="checkbox" ng-model="radar.config.showAxesLabels" />Labels dos Eixos</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <hr />
+
+
+  <!-- description -->
+  <div class="description">
+    <p>O gráfico de radar permite visualizar dados multivariados em um gráfico 2D de três ou mais variáveis quantitativas representadas em eixos. Use os parâmetros de configuração acima para ajustar o gráfico aos seus gostos e também pode optar por ver os gráficos empilhados vs facetados.</p>
+    <p>Para testes personalizados, carregue um arquivo de acordo com o esquema de dados (consulte a seção Dados abaixo) ou teste os seguintes arquivos de exemplo:</p>
+    <ul>
+      <li><a href="data_the_avengers.csv" target="_blank">The Avengers</a> (Power Grid ratings)</li>
+      <li><a href="data_plant_seasons.csv" target="_blank">Plant Seaons</a> (mock data)</li>
+      <li><a href="data_car_ratings.csv" target="_blank">Car Ratings</a> (mock data)</li>
+    </ul>
+    <input id="fileUpload" type="file" on-read-file="radar.getData($fileContent)" />
+  </div>
+  <hr/>
+
+
+
+  
+
+
+  <!-- data/file preview -->
+  <div class="preview">
+    <h2>Data</h2>
+    <pre>{{ radar.csv }}</pre>
+  </div>
+
+
+  <!-- footer -->
+  <footer>
+    <p><a href="https://gist.github.com/chrisrzhou/2421ac6541b68c1680f8" target="_blank">D3 Radar Chart</a> by chrisrzhou, 2015-01-15
+      <br />
+      <a href="http://github.com/chrisrzhou" target="_blank"><i class="fa fa-github"></i></a> |
+      <a href="http://bl.ocks.org/chrisrzhou" target="_blank"><i class="fa fa-cubes"></i></a> |
+      <a href="http://www.linkedin.com/in/chrisrzhou" target="_blank"><i class="fa fa-linkedin"></i></a>
+    </p>
+  </footer>
+
+
+  <!-- scripts -->
+  <script src="http://code.angularjs.org/1.3.5/angular.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="app.js"></script>
+  <script src="radar.js"></script>
+  <script src="radarDraw.js"></script>
+  <script>
+    d3.select(self.frameElement).style("height", "1000px");
+  </script>
+</body>
+
+</html>

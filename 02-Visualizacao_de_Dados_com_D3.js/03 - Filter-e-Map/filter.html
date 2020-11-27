@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>Visualização de Dados com D3</title>
+	<link rel="stylesheet" href="main.css">
+	<script  type="text/javascript" src="d3.min.js"></script>
+</head>
+<body>
+	
+	<!-- Aqui são colocados os elementos DOM -->
+	<p>Funções Filter e Map</p>
+
+<script>
+var medias = [78,71,67,93,59,43,88,89,91,80,67,75];
+var mediaMaior70 = medias.filter(function(entry){
+	return entry > 70;
+});
+console.log("Médias Maiores que 70: ", mediaMaior70);
+
+var disciplinas = [
+	{key: "Lógica", 	    				value: 78},
+	{key: "Álgebra I", 						value: 71},
+	{key: "Orientação a Objetos", 			value: 67},
+	{key: "Estatística I",					value: 93},
+	{key: "Sistemas Operacionais I", 	    value: 59},
+	{key: "Física Experimental", 			value: 43},
+	{key: "Engenharia de Softwware", 		value: 88},
+	{key: "Programação Python",				value: 89},
+	{key: "Algoritmos I", 	    			value: 91},
+	{key: "Algoritmos II", 					value: 80},
+	{key: "Programação Java", 				value: 67},
+	{key: "Programação Python",				value: 75}
+];
+var mediaMaior70 = disciplinas.filter(function(entry){
+	return entry.value > 70;
+});
+console.log("Disciplinas com Notas Médias Superiores a 70: ", mediaMaior70);
+
+var reformatDisciplinas = disciplinas.map(function(entry){
+	return {
+		disciplina: entry.key,
+		media: entry.value
+	};
+});
+reformatDisciplinas.forEach(function(entry){
+	console.log(entry);
+});
+
+</script>	
+</body>
+</html>
+

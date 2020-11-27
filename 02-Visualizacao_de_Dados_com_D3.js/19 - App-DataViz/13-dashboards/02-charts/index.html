@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+
+    </div>
+</nav>
+
+        <p><link rel="stylesheet" href="/13-dashboards/css/dashboard.css"></p>
+
+<script src="/13-dashboards/js/dashboard.js"></script>
+
+
+<script src="/13-dashboards/js/gendata.js"></script>
+
+
+
+
+<h1 class="section-title">Charts</h1>
+
+
+
+
+<h2 class="section-subtitle">Ausências</h2>
+
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-condensed table-fluid">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Ausências</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Pele Silva</td>
+                    <td><div id="absences-chart"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    var absences = dashboard.chart.absenceChart()
+        .width(200)
+        .height(20)
+        .from(classData.from)
+        .to(classData.to);
+
+    d3.select('#absences-chart')
+        .data([classData.students[0].absences])
+        .call(absences);
+</script>
+
+
+<h2 class="section-subtitle">Notas</h2>
+
+
+<div class="row">
+    <div class="col-md-10">
+        <table class="table table-condensed table-fluid">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Geografia</th>
+                    <th>Matemática</th>
+                    <th>Literatura</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Pele Silva</td>
+                    <td><div id="score-chart-1"></div></td>
+                    <td><div id="score-chart-2"></div></td>
+                    <td><div id="score-chart-3"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    // Cria e configura os gráficos de pontuação
+    var score = dashboard.chart.scoreChart()
+        .width(200)
+        .height(60)
+        .from(classData.from)
+        .to(classData.to);
+
+
+    // Seleciona os elementos do container, vincula os dados e invoca o gráfico de pontuação
+    d3.select('#score-chart-1')
+        .data([classData.students[0].classes[0].scores])
+        .call(score);
+
+    d3.select('#score-chart-2')
+        .data([classData.students[0].classes[1].scores])
+        .call(score);
+
+    d3.select('#score-chart-3')
+        .data([classData.students[0].classes[2].scores])
+        .call(score);
+</script>
+
+
+
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

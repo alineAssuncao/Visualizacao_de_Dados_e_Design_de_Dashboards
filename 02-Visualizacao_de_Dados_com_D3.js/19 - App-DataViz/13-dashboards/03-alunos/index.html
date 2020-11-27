@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+    
+    </div>
+</nav>
+
+        <p><link rel="stylesheet" href="/13-dashboards/css/dashboard.css"></p>
+
+<script src="/13-dashboards/js/dashboard.js"></script>
+
+
+<script src="/13-dashboards/js/gendata.js"></script>
+
+<h1 class="section-title">Seção - Estudantes</h1>
+
+<h2 class="section-subtitle">Alunos</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div id="students"></div>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<script>
+    // Cria e configura uma instância da tabela do aluno
+    var tableStudents = dashboard.chart.studentsTable()
+        .from(classData.from)
+        .to(classData.to);
+
+    // Seleciona o elemento container, vincule os dados e invoque o gráfico
+    d3.select('div#students')
+        .data([classData.students])
+        .call(tableStudents);
+</script>
+
+
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

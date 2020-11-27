@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.jse</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+      
+
+    </div>
+</nav>
+
+
+
+<script src="/js/lib/topojson.js"></script>
+
+
+<p><link rel="stylesheet" type="text/css" href="/12-mapas-avancados/maps.css"></p>
+
+<h1 class="section-title">Rotacionando o Globo</h1>
+
+
+<h2 class="section-subtitle">Projeção Ortográfica</h2>
+
+
+<div id="map-orthographic-clip"></div>
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var width = 600, height = 300;
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        var orthographic = d3.geo.orthographic()
+            .scale(height / 2)
+            .translate([width / 2, height / 2])
+            .clipAngle(90);
+
+        var path = d3.geo.path()
+            .projection(orthographic);
+
+        var div = d3.select('#map-orthographic-clip'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Rotacionando o Globo</h2>
+
+<div id="map-zoom-orthographic"></div>
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var width = 800,
+            height = 400;
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        // Rotação
+        var state = {x: 0, y: -45, scale: height / 2};
+
+        var orthographic = d3.geo.orthographic()
+            .scale(state.scale)
+            .translate([width / 2, height / 2])
+            .clipAngle(90)
+            .rotate([state.x, state.y]);
+
+        var path = d3.geo.path()
+            .projection(orthographic);
+
+        var div = d3.select('#map-zoom-orthographic'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        var globe = svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        var land = svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        var lines = svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+
+        var overlay = svg.append('circle').datum(state)
+            .attr('r', height / 2)
+            .attr('transform', 'translate(' + [width / 2, height / 2] + ')')
+            .attr('fill-opacity', 0);
+
+        // zoom behavior
+        var zoomBehavior = d3.behavior.zoom()
+            .scaleExtent([0.5, 8])
+            .on('zoom', zoom);
+
+        overlay.call(zoomBehavior);
+
+        function zoom(d) {
+
+            var scale = d3.event.scale,
+                dx = d3.event.translate[0],
+                dy = d3.event.translate[1];
+
+            d.x = 180 / width * dx;    // rotação horizontal
+            d.y = -180 / height * dy;  // rotação vertical
+
+            orthographic
+                .rotate([d.x, d.y])
+                .scale(d.scale * scale);
+
+            svg.selectAll('path').attr('d', path);
+            overlay.attr('r', scale * height / 2);
+        }
+
+
+    });
+</script>
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualização de Dados com D3.js</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/lib/d3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Menu</a>
+        </div>
+
+
+    </div>
+</nav>
+
+ 
+
+<script src="/js/lib/topojson.js"></script>
+
+
+<p><link rel="stylesheet" type="text/css" href="/12-mapas-avancados/maps.css"></p>
+
+<h1 class="section-title">Projeções</h1>
+
+<h2 class="section-subtitle">Projeção 1 - Mercator</h2>
+
+<div id="map-mercator"></div>
+
+<script>
+    // Carregando os dados
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+         if (error) { console.error(error); }
+
+         var width = 300, height = 300;
+
+        // Construindo o objeto GeoJSON a partir dos dados TopoJSON
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        // Criar e configurar uma instância da projeção Mercator
+        var mercator = d3.geo.mercator()
+            .scale(width / (2 * Math.PI))
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(mercator);
+
+        var div = d3.select('#map-mercator'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Projeção 2 - Equiretangular</h2>
+
+
+
+<div id="map-equirectangular"></div>
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        var width = 600, height = 300;
+
+        var div = d3.select('#map-equirectangular'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        var equirectangular = d3.geo.equirectangular()
+            .scale(width / (2 * Math.PI))
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(equirectangular);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Projeção 3 - Conic Equidistante</h2>
+
+
+
+
+<div id="map-conic"></div>
+
+
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var width = 600, height = 300;
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        var conic = d3.geo.conicEquidistant()
+            .scale(0.75 * width / (2 * Math.PI))
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(conic);
+
+        var div = d3.select('#map-conic'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+<h2 class="section-subtitle">Projeção 4 - Ortográfica</h2>
+
+
+
+
+<div id="map-orthographic"></div>
+
+
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var width = 600, height = 300;
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        var orthographic = d3.geo.orthographic()
+            .scale(height / 2)
+            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+            .projection(orthographic);
+
+        var div = d3.select('#map-orthographic'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+
+<h2 class="section-subtitle">Projeção 5 - Ortográfica (com Clipping)</h2>
+
+
+
+
+<div id="map-orthographic-clip"></div>
+
+
+
+
+<script>
+    d3.json('/12-mapas-avancados/data/land.json', function(error, data) {
+
+        if (error) { console.error(error); }
+
+        var width = 600, height = 300;
+
+        var geojson = topojson.feature(data, data.objects.ne_50m_land);
+
+        var orthographic = d3.geo.orthographic()
+            .scale(height / 2)
+            .translate([width / 2, height / 2])
+            .clipAngle(90);
+
+        var path = d3.geo.path()
+            .projection(orthographic);
+
+        var div = d3.select('#map-orthographic-clip'),
+            svg = div.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+        svg.append('path').datum({type: 'Sphere'})
+            .attr('class', 'globe')
+            .attr('d', path);
+
+        svg.append('path').datum(geojson)
+            .attr('class', 'land')
+            .attr('d', path);
+
+        var graticule = d3.geo.graticule();
+
+        svg.append('path').datum(graticule())
+            .attr('class', 'graticule')
+            .attr('d', path);
+    });
+</script>
+
+
+
+        <div class="footer"></div>
+    </div>
+    <script src="/js/lib/jquery.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+</body>
+</html>

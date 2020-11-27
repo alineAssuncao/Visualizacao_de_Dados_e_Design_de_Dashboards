@@ -1,0 +1,33 @@
+{
+    "name": "Fruits",
+    "data": [
+        {
+            "name": "Abacaxi",
+            "description": "Fruta muito comum no Nordeste do Brasil.",
+            "amount_grams": 100,
+            "calories": 52,
+            "color": "#FF5149"
+        },
+        {
+            "name": "Laranja",
+            "description": "Vitamina C em natura para prevenção de doenças.",
+            "amount_grams": 100,
+            "calories": 47,
+            "color": "#E89546"
+        },
+        {
+            "name": "Melancia",
+            "description": "Fruta de época muito usada para doces e sorvetes.",
+            "amount_grams": 100,
+            "calories": 57,
+            "color": "#A1E846"
+        },
+        {
+            "name": "Banana",
+            "description": "Com açaí ou com sorvete, é sempre uma delícia.",
+            "amount_grams": 100,
+            "calories": 89,
+            "color": "#FFE159"
+        }
+    ]
+}
